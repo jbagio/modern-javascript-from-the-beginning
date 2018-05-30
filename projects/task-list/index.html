@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Task List</title>
+</head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <div id="main" class="card">
+          <div class="card-content">
+            <span class="card-title center">Task list</span>
+            <div class="row">
+              <form action="" id="task-form">
+                <div class="input-field col s12">
+                  <label for="task">New task</label>
+                  <input type="text" name="task" id="task" required>
+                </div>
+                <div class="center">
+                  <input type="submit" value="Add" class="btn">
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="card-action">
+            <h5 id="task-title" class="center">Tasks</h5>
+            <div class="input-field col s12">
+              <label for="filter">Filter tasks</label>
+              <input type="text" name="filter" id="filter">
+            </div>
+            <ul class="collection"></ul>
+            <div class="center">
+              <a href="#" class="clear-tasks btn red">Clear</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="assets/scripts/app.js"></script>
+</body>
+</html>
