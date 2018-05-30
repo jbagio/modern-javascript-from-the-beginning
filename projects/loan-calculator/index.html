@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/styles/styles.css">
+  <title>Loan Calculator</title>
+</head>
+<body class="bg-dark">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 mx-auto">
+        <div class="card card-body text-center mt-5">
+          <h1 class="heading display-5 pb-3">Loan calculator</h1>
+          <form action="" id="loan-form">
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">€</span>
+                </div>
+                <input type="number" step="0.01" id="amount" class="form-control" placeholder="Loan amount" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">%</span>
+                </div>
+                <input type="number" step="0.01" id="interest" class="form-control" placeholder="Interest" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="number" id="years" class="form-control" placeholder="Years to repay" required>
+            </div>
+            <div class="form-group">
+              <input type="submit" value="Calculate" class="btn btn-dark btn-block">
+            </div>
+          </form>
+          <!-- loader -->
+          <div id="loading">
+            <img src="assets/images/loading.gif" alt="Loading results">
+          </div>
+          <!-- results area -->
+          <div id="results" class="pt-4">
+            <h5>Results</h5>
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Monthly payment</span>
+                </div>
+                <input type="text" id="monthly-payment" class="form-control" disabled>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Total payment</span>
+                </div>
+                <input type="text" id="total-payment" class="form-control" disabled>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Total interest</span>
+                </div>
+                <input type="text" id="total-interest" class="form-control" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="assets/scripts/app.js"></script>
+</body>
+</html>
