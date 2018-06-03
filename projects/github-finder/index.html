@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>GitHub Finder</title>
+  <link rel="stylesheet" href="https://bootswatch.com/4/slate/bootstrap.min.css">
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-primary mb-3">
+    <div class="container">
+      <a href="#" class="navbar-brand">GitHub Finder</a>
+    </div>
+  </nav>
+  <div class="container search-container">
+    <div class="search card card-body text-center">
+      <h1>Search GitHub users</h1>
+      <p class="lead">Enter a username to fetch a user profile and repos</p>
+      <form class="form-row" id="search-form">
+        <div class="col">
+          <input type="text" name="username" id="username" class="form-control mb-2">
+          <input type="submit" value="Search" class="btn btn-primary">
+        </div>
+      </form>
+    </div>
+    <hr>
+    <div id="profile"></div>
+  </div>
+  <!-- <footer class="mt-5 p3 text-center bg-light">
+    GitHub Finder
+  </footer> -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+  <script src="assets/scripts/config.js"></script>
+  <script src="assets/scripts/GithubFetcher.js"></script>
+  <script src="assets/scripts/UI.js"></script>
+  <script src="assets/scripts/app.js"></script>
+</body>
+</html>
