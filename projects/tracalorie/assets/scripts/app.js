@@ -14,9 +14,15 @@ const ItemController = (function () {
     totalCalories: 0
   };
 
-  // Public methods
+  /**
+   * Return public methods
+   */
   return {
     getItems: () => data.items,
+    getItemById: id => {
+      const found = data.items.find(item => item.id === id);
+      return found;
+    },
     getTotalCalories: () => data.totalCalories,
     addItem: (name, calories) => {
       // Generate an ID. This guarantees enough uniqueness for this case:
@@ -30,7 +36,17 @@ const ItemController = (function () {
       data.items.push(newItem);
 
       // Update total calories
-      data.totalCalories += newItem.calories;
+      data.totalCalories = data.items.reduce((total, currentItem) => total + currentItem.calories, 0);
+    },
+    updateItem: (name, calories) => {
+      data.currentItem.name = name;
+      data.currentItem.calories = parseInt(calories);
+
+      // Update total calories
+      data.totalCalories = data.items.reduce((total, currentItem) => total + currentItem.calories, 0);
+    },
+    setCurrentItem: item => {
+      data.currentItem = item;
     },
     logData: () => data
   };
@@ -40,16 +56,20 @@ const ItemController = (function () {
 const UIController = (function () {
   // Selectors for DOM elements
   const uiSelectors = {
-    // Using form submit instead of course's button click,
-    // so we can have cleaner validation
     itemForm: '#item-form',
     itemNameInp: '#item-name',
     itemCaloriesInp: '#item-calories',
     itemsUl: '#item-list',
-    totalCaloriesSpan: '.total-calories'
+    totalCaloriesSpan: '.total-calories',
+    addBtn: '.add-btn',
+    deleteBtn: '.delete-btn',
+    updateBtn: '.update-btn',
+    cancelBtn: '.cancel-btn'
   };
 
-  // Public methods
+  /**
+   * Return public methods
+   */
   return {
     renderItems: items => {
       let html = '';
@@ -59,7 +79,7 @@ const UIController = (function () {
         html += `
           <li id="item-${item.id}" class="collection-item">
             <strong>${item.name}</strong><em> ${item.calories} calories</em>
-            <a href="#" class="secondary-content"><i class="fas fa-pencil-alt"></i></a>
+            <a href="#" class="secondary-content"><i class="edit-item fas fa-pencil-alt"></i></a>
           </li>
         `;
       });
@@ -70,8 +90,6 @@ const UIController = (function () {
       // Add value to 'Total Calories' span
       document.querySelector(uiSelectors.totalCaloriesSpan).innerHTML = totalCalories;
     },
-    getUiSelectors: () => uiSelectors,
-    // Grab and return item input values
     getItemInput: () => {
       return {
         name: document.querySelector(uiSelectors.itemNameInp).value.trim(),
@@ -81,23 +99,57 @@ const UIController = (function () {
     clearInput: () => {
       document.querySelector(uiSelectors.itemNameInp).value = '';
       document.querySelector(uiSelectors.itemCaloriesInp).value = '';
-    }
+    },
+    addItemEdit: (item) => {
+      // Add item values to inputs
+      document.querySelector(uiSelectors.itemNameInp).value = item.name;
+      document.querySelector(uiSelectors.itemCaloriesInp).value = item.calories;
+    },
+    setDefaultState: () => {
+      document.querySelector(uiSelectors.updateBtn).style.visibility = 'hidden';
+      document.querySelector(uiSelectors.deleteBtn).style.visibility = 'hidden';
+      document.querySelector(uiSelectors.cancelBtn).style.visibility = 'hidden';
+      document.querySelector(uiSelectors.addBtn).style.display = 'inline-block';
+    },
+    setEditState: () => {
+      document.querySelector(uiSelectors.updateBtn).style.visibility = 'visible';
+      document.querySelector(uiSelectors.deleteBtn).style.visibility = 'visible';
+      document.querySelector(uiSelectors.cancelBtn).style.visibility = 'visible';
+      document.querySelector(uiSelectors.addBtn).style.display = 'none';
+    },
+    getUiSelectors: () => uiSelectors
   };
 }());
 
 // Main app module
 const App = (function (itemCtrl, uiCtrl) {
-  const registerEventListeners = () => {
-    // Get selectors from UI Controller
-    const uiSelectors = uiCtrl.getUiSelectors();
+  // Get selectors from UI Controller
+  const uiSelectors = uiCtrl.getUiSelectors();
 
-    // Form submit event listener
+  const registerEventListeners = () => {
+    // Using form submit instead of course's button click,
+    // so we can have cleaner HTML validation
     document.querySelector(uiSelectors.itemForm).addEventListener('submit', addItemSubmit);
+
+    // UL click - event delegation
+    document.querySelector(uiSelectors.itemsUl).addEventListener('click', editItemClick);
+
+    // Update button
+    document.querySelector(uiSelectors.updateBtn).addEventListener('click', updateItemSubmit);
   };
 
-  // Event listeners
-  // Add item button
+  /**
+   * Event listeners
+   */
+
+  // Form submit event
   const addItemSubmit = e => {
+    // If form submit not originated by Add button, cancel
+    if (e.explicitOriginalTarget.className.indexOf('add-btn') === -1) {
+      e.preventDefault();
+      return false;
+    }
+
     // Get input values from UI Controller
     const {name, calories} = uiCtrl.getItemInput(); // Obj destructuring
 
@@ -114,11 +166,75 @@ const App = (function (itemCtrl, uiCtrl) {
     e.preventDefault();
   };
 
-  // Public methods
+  // Edit icon click event
+  const editItemClick = e => {
+    // Check for icon click
+    if (e.target.classList.contains('edit-item')) {
+      // fetch the parent li id
+      const liId = getClosest(e.target, 'collection-item').id;
+
+      // li id has 'item-123' format, so extract the number part
+      const itemId = liId.split('-')[1];
+
+      // Fetch ref to actual item and set it to be edited
+      const itemToEdit = itemCtrl.getItemById(itemId);
+      itemCtrl.setCurrentItem(itemToEdit);
+      uiCtrl.addItemEdit(itemToEdit);
+
+      // Switch to edit state
+      uiCtrl.setEditState();
+    }
+
+    e.preventDefault();
+  };
+
+  // Update item click event
+  const updateItemSubmit = e => {
+    // Trigger html validation
+    if (document.querySelector(uiSelectors.itemForm).checkValidity()) {
+      // Get input values from UI controller
+      const {name, calories} = uiCtrl.getItemInput();
+
+      // Pass to Item Controller for creation
+      itemCtrl.updateItem(name, calories);
+
+      // Re-fetch and re-render items
+      uiCtrl.renderItems(itemCtrl.getItems());
+      uiCtrl.renderTotalCalories(itemCtrl.getTotalCalories());
+
+      // Clear inputs and switch back to default state
+      uiCtrl.clearInput();
+      uiCtrl.setDefaultState();
+
+      e.preventDefault();
+    } else {
+      // This is needed to trigger the html validation alerts...
+      // http://codetheory.in/html5-form-validation-on-javascript-submission/
+      document.querySelector(uiSelectors.addBtn).click();
+    }
+  };
+
+  /**
+   * Helpers
+   * helper method to traverse up and find element with given class
+   */
+  const getClosest = (elem, targetClass) => {
+    while (!elem.classList.contains(targetClass) && elem.parentElement !== null) {
+      elem = elem.parentElement;
+    }
+    return elem;
+  };
+
+  /**
+   * Return public methods
+   */
   return {
     init: () => {
       // Register event listeners
       registerEventListeners();
+
+      // Set default state
+      uiCtrl.setDefaultState();
 
       // Get items from data and render them
       uiCtrl.renderItems(itemCtrl.getItems());
