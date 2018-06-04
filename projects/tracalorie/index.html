@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Tracalorie Meal and Calories Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+</head>
+<body>
+  <nav>
+    <div class="nav-wrapper green">
+      <div class="container">
+        <a href="#" class="brand-logo center">Tracalorie</a>
+        <ul class="right">
+          <li>
+            <a href="#" class="clear-btn btn green darken-3">Clear all</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    <!-- Form -->
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">Add meal and calories</span>
+        <form class="col">
+          <div class="row">
+            <div class="input-field col s6">
+              <label for="item-name">Meal</label>
+              <input type="text" id="item-name" required>
+            </div>
+            <div class="input-field col s6">
+              <label for="item-calories">Calories</label>
+              <input type="number" id="item-calories" required>
+            </div>
+            <button class="add-btn btn green darken-1"><i class="fas fa-plus-circle"></i> Add</button>
+            <button class="update-btn btn orange darken-1"><i class="fas fa-edit"></i> Update</button>
+            <button class="delete-btn btn red darken-1"><i class="fas fa-trash-alt"></i> Delete</button>
+            <button class="update-btn btn grey darken-1"><i class="fas fa-undo"></i> Back</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- List -->
+    <h4 class="center-align">Total calories: <span class="total-calories">0</span></h4>
+    <ul id="item-list" class="collection card">
+      <li id="item-0" class="collection-item">
+        <strong>Chickpea curry: </strong><em>350 calories</em>
+        <a href="#" class="secondary-content"><i class="fas fa-pencil-alt"></i></a>
+      </li>
+      <li id="item-1" class="collection-item">
+        <strong>Mashed surprise: </strong><em>550 calories</em>
+        <a href="#" class="secondary-content"><i class="fas fa-pencil-alt"></i></a>
+      </li>
+      <li id="item-2" class="collection-item">
+        <strong>Green smoothie: </strong><em>220 calories</em>
+        <a href="#" class="secondary-content"><i class="fas fa-pencil-alt"></i></a>
+      </li>
+    </ul>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="assets/scripts/app.js"></script>
+</body>
+</html>
