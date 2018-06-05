@@ -1,4 +1,6 @@
-// Item module
+/**
+ * Item module
+ */
 const ItemController = (function () {
   // Constructor
   const Item = function (id, name, calories) {
@@ -14,15 +16,16 @@ const ItemController = (function () {
     totalCalories: 0
   };
 
+  const getItemById = id => {
+    const found = data.items.find(item => item.id === id);
+    return found;
+  };
+
   /**
    * Return public methods
    */
   return {
     getItems: () => data.items,
-    getItemById: id => {
-      const found = data.items.find(item => item.id === id);
-      return found;
-    },
     getTotalCalories: () => data.totalCalories,
     addItem: (name, calories) => {
       // Generate an ID. This guarantees enough uniqueness for this case:
@@ -46,8 +49,23 @@ const ItemController = (function () {
       data.totalCalories = data.items.reduce((total, currentItem) => total + currentItem.calories, 0);
     },
     getCurrentItem: () => data.currentItem,
-    setCurrentItem: item => {
-      data.currentItem = item;
+    // NOTE: changing this, exposing object ref
+    // allows for outside manipulation
+    // setCurrentItem: item => {
+    //   data.currentItem = item;
+    // },
+    setCurrentItem: () => {
+      console.log('set current');
+      // Get id from li marked with data attribute
+      const liId = document.querySelector('[data-current-item]').id;
+
+      // li id has 'item-123' format, so extract the number part
+      const itemId = liId.split('-')[1];
+
+      data.currentItem = getItemById(itemId);
+    },
+    clearCurrentItem: () => {
+      data.currentItem = null;
     },
     deleteCurrentItem: () => {
       // Filter out all items except current
@@ -67,8 +85,10 @@ const ItemController = (function () {
   };
 }());
 
-// UI module
-const UIController = (function () {
+/**
+ * UI module
+ */
+const UIController = (function (itemCtrl) {
   // Selectors for DOM elements
   const uiSelectors = {
     itemForm: '#item-form',
@@ -121,7 +141,8 @@ const UIController = (function () {
         calories: document.querySelector(uiSelectors.itemCaloriesInp).value.trim()
       };
     },
-    addItemToForm: (item) => {
+    addItemToForm: () => {
+      const item = itemCtrl.getCurrentItem();
       // Add item values to inputs
       document.querySelector(uiSelectors.itemNameInp).value = item.name;
       document.querySelector(uiSelectors.itemCaloriesInp).value = item.calories;
@@ -132,18 +153,30 @@ const UIController = (function () {
       document.querySelector(uiSelectors.deleteBtn).style.visibility = 'hidden';
       document.querySelector(uiSelectors.cancelBtn).style.visibility = 'hidden';
       document.querySelector(uiSelectors.addBtn).style.display = 'inline-block';
+      // Clear current item from state
+      itemCtrl.clearCurrentItem();
+      // Remove data attribute marking current item in the DOM
+      if (document.querySelector('[data-current-item]') !== null) {
+        document.querySelector('[data-current-item]').removeAttribute('data-current-item');
+      }
     },
     setEditState: () => {
       document.querySelector(uiSelectors.updateBtn).style.visibility = 'visible';
       document.querySelector(uiSelectors.deleteBtn).style.visibility = 'visible';
       document.querySelector(uiSelectors.cancelBtn).style.visibility = 'visible';
       document.querySelector(uiSelectors.addBtn).style.display = 'none';
+      // Remove data attribute marking current item
+      if (document.querySelector('[data-current-item]') !== null) {
+        document.querySelector('[data-current-item]').removeAttribute('data-current-item');
+      }
     },
     getUiSelectors: () => uiSelectors
   };
-}());
+}(ItemController));
 
-// Main app module
+/**
+ * Main app module
+ */
 const App = (function (itemCtrl, uiCtrl) {
   // Get selectors from UI Controller
   const uiSelectors = uiCtrl.getUiSelectors();
@@ -157,13 +190,13 @@ const App = (function (itemCtrl, uiCtrl) {
     document.querySelector(uiSelectors.itemsUl).addEventListener('click', editItemClick);
 
     // Update button
-    document.querySelector(uiSelectors.updateBtn).addEventListener('click', updateItemSubmit);
+    document.querySelector(uiSelectors.updateBtn).addEventListener('click', updateItemClick);
 
     // Cancel button - pass setDefaultState ref
     document.querySelector(uiSelectors.cancelBtn).addEventListener('click', uiCtrl.setDefaultState);
 
     // Delete button
-    document.querySelector(uiSelectors.deleteBtn).addEventListener('click', deleteItemSubmit);
+    document.querySelector(uiSelectors.deleteBtn).addEventListener('click', deleteItemClick);
 
     // Clear button
     document.querySelector(uiSelectors.clearBtn).addEventListener('click', clearItemsClick);
@@ -202,19 +235,20 @@ const App = (function (itemCtrl, uiCtrl) {
   const editItemClick = e => {
     // Check for icon click
     if (e.target.classList.contains('edit-item')) {
-      // fetch the parent li id
-      const liId = getClosest(e.target, 'collection-item').id;
+      // fetch the parent li
+      const li = getClosest(e.target, 'collection-item');
 
-      // li id has 'item-123' format, so extract the number part
-      const itemId = liId.split('-')[1];
+      // add data attribute to mark as current item
+      li.setAttribute('data-current-item', '');
 
-      // Fetch ref to actual item and set it to be edited
-      const itemToEdit = itemCtrl.getItemById(itemId);
-      uiCtrl.addItemToForm(itemToEdit);
+      // setCurrentItem will place the correct item in state
+      itemCtrl.setCurrentItem();
 
-      itemCtrl.setCurrentItem(itemToEdit);
+      // place values in form - this will use current item
+      uiCtrl.addItemToForm();
 
-      // Switch to edit state
+      // Switch to edit state - after this, the data-attribute will be cleared from the li
+      // so cannot be manipulated externally!
       uiCtrl.setEditState();
     }
 
@@ -222,7 +256,7 @@ const App = (function (itemCtrl, uiCtrl) {
   };
 
   // Update item click event
-  const updateItemSubmit = e => {
+  const updateItemClick = e => {
     // Trigger html validation
     if (document.querySelector(uiSelectors.itemForm).checkValidity()) {
       // Get input values from UI controller
@@ -235,7 +269,7 @@ const App = (function (itemCtrl, uiCtrl) {
       uiCtrl.renderItems(itemCtrl.getItems());
       uiCtrl.renderTotalCalories(itemCtrl.getTotalCalories());
 
-      // Clear inputs and switch back to default state
+      // Switch back to default state
       uiCtrl.setDefaultState();
 
       e.preventDefault();
@@ -247,14 +281,14 @@ const App = (function (itemCtrl, uiCtrl) {
   };
 
   // Delete item click event
-  const deleteItemSubmit = e => {
+  const deleteItemClick = e => {
     itemCtrl.deleteCurrentItem();
 
     // Re-fetch and re-render items
     uiCtrl.renderItems(itemCtrl.getItems());
     uiCtrl.renderTotalCalories(itemCtrl.getTotalCalories());
 
-    // Clear inputs and switch back to default state
+    // Switch back to default state
     uiCtrl.setDefaultState();
 
     e.preventDefault();
@@ -268,7 +302,7 @@ const App = (function (itemCtrl, uiCtrl) {
     uiCtrl.renderItems(itemCtrl.getItems());
     uiCtrl.renderTotalCalories(itemCtrl.getTotalCalories());
 
-    // Clear inputs and switch back to default state
+    // Switch back to default state
     uiCtrl.setDefaultState();
 
     e.preventDefault();
