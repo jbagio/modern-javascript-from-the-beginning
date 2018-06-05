@@ -45,8 +45,23 @@ const ItemController = (function () {
       // Update total calories
       data.totalCalories = data.items.reduce((total, currentItem) => total + currentItem.calories, 0);
     },
+    getCurrentItem: () => data.currentItem,
     setCurrentItem: item => {
       data.currentItem = item;
+    },
+    deleteCurrentItem: () => {
+      // Filter out all items except current
+      data.items = data.items.filter(item => item.id !== data.currentItem.id);
+
+      data.currentItem = null;
+
+      // Update total calories
+      data.totalCalories = data.items.reduce((total, currentItem) => total + currentItem.calories, 0);
+    },
+    deleteAllItems: () => {
+      data.items = [];
+      data.currentItem = null;
+      data.totalCalories = 0;
     },
     logData: () => data
   };
@@ -64,7 +79,17 @@ const UIController = (function () {
     addBtn: '.add-btn',
     deleteBtn: '.delete-btn',
     updateBtn: '.update-btn',
-    cancelBtn: '.cancel-btn'
+    cancelBtn: '.cancel-btn',
+    clearBtn: '.clear-btn'
+  };
+
+  /**
+   * Internal method
+   * clear input values
+   */
+  const clearInput = () => {
+    document.querySelector(uiSelectors.itemNameInp).value = '';
+    document.querySelector(uiSelectors.itemCaloriesInp).value = '';
   };
 
   /**
@@ -96,16 +121,13 @@ const UIController = (function () {
         calories: document.querySelector(uiSelectors.itemCaloriesInp).value.trim()
       };
     },
-    clearInput: () => {
-      document.querySelector(uiSelectors.itemNameInp).value = '';
-      document.querySelector(uiSelectors.itemCaloriesInp).value = '';
-    },
-    addItemEdit: (item) => {
+    addItemToForm: (item) => {
       // Add item values to inputs
       document.querySelector(uiSelectors.itemNameInp).value = item.name;
       document.querySelector(uiSelectors.itemCaloriesInp).value = item.calories;
     },
     setDefaultState: () => {
+      clearInput();
       document.querySelector(uiSelectors.updateBtn).style.visibility = 'hidden';
       document.querySelector(uiSelectors.deleteBtn).style.visibility = 'hidden';
       document.querySelector(uiSelectors.cancelBtn).style.visibility = 'hidden';
@@ -136,6 +158,15 @@ const App = (function (itemCtrl, uiCtrl) {
 
     // Update button
     document.querySelector(uiSelectors.updateBtn).addEventListener('click', updateItemSubmit);
+
+    // Cancel button - pass setDefaultState ref
+    document.querySelector(uiSelectors.cancelBtn).addEventListener('click', uiCtrl.setDefaultState);
+
+    // Delete button
+    document.querySelector(uiSelectors.deleteBtn).addEventListener('click', deleteItemSubmit);
+
+    // Clear button
+    document.querySelector(uiSelectors.clearBtn).addEventListener('click', clearItemsClick);
   };
 
   /**
@@ -161,7 +192,8 @@ const App = (function (itemCtrl, uiCtrl) {
     uiCtrl.renderItems(itemCtrl.getItems());
     uiCtrl.renderTotalCalories(itemCtrl.getTotalCalories());
 
-    uiCtrl.clearInput();
+    // Set default state to reset inputs
+    uiCtrl.setDefaultState();
 
     e.preventDefault();
   };
@@ -178,8 +210,9 @@ const App = (function (itemCtrl, uiCtrl) {
 
       // Fetch ref to actual item and set it to be edited
       const itemToEdit = itemCtrl.getItemById(itemId);
+      uiCtrl.addItemToForm(itemToEdit);
+
       itemCtrl.setCurrentItem(itemToEdit);
-      uiCtrl.addItemEdit(itemToEdit);
 
       // Switch to edit state
       uiCtrl.setEditState();
@@ -203,7 +236,6 @@ const App = (function (itemCtrl, uiCtrl) {
       uiCtrl.renderTotalCalories(itemCtrl.getTotalCalories());
 
       // Clear inputs and switch back to default state
-      uiCtrl.clearInput();
       uiCtrl.setDefaultState();
 
       e.preventDefault();
@@ -212,6 +244,34 @@ const App = (function (itemCtrl, uiCtrl) {
       // http://codetheory.in/html5-form-validation-on-javascript-submission/
       document.querySelector(uiSelectors.addBtn).click();
     }
+  };
+
+  // Delete item click event
+  const deleteItemSubmit = e => {
+    itemCtrl.deleteCurrentItem();
+
+    // Re-fetch and re-render items
+    uiCtrl.renderItems(itemCtrl.getItems());
+    uiCtrl.renderTotalCalories(itemCtrl.getTotalCalories());
+
+    // Clear inputs and switch back to default state
+    uiCtrl.setDefaultState();
+
+    e.preventDefault();
+  };
+
+  // Clear items click event
+  const clearItemsClick = e => {
+    itemCtrl.deleteAllItems();
+
+    // Re-fetch and re-render items
+    uiCtrl.renderItems(itemCtrl.getItems());
+    uiCtrl.renderTotalCalories(itemCtrl.getTotalCalories());
+
+    // Clear inputs and switch back to default state
+    uiCtrl.setDefaultState();
+
+    e.preventDefault();
   };
 
   /**
