@@ -1,8 +1,14 @@
 class GithubFetcher {
   constructor () {
-    // Get keys from config file
-    this.clientId = config.CLIENT_ID;
-    this.clientSecret = config.CLIENT_SECRET;
+    try {
+      // Get keys from config file if existent
+      this.clientId = config.CLIENT_ID;
+      this.clientSecret = config.CLIENT_SECRET;
+    }
+    catch (ReferenceError) {
+      this.clientId = '';
+      this.clientSecret = '';
+    }
     // Endpoint parameters
     this.repoCount = 5;
     this.repoSort = 'created: asc';
